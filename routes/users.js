@@ -19,105 +19,92 @@ router.get('/', function (req, res) {
 });
 
 router.post('/created', (req, res) => {
-  let userAry;
-  fs.readFile(path.join(__dirname, '../data', 'data.json'), (err, data) => {
+  user.find({}, (err, data) => {
     if (err) throw err;
-    userAry = JSON.parse(data);
-    (!req.body.id) ? req.body.id = 1 : req.body.id = req.body.id;
-    for (let i = 0; i < userAry.length; i++) {
-      if (req.body.id == userAry[i].id) {
+    for (let i = 0; i < data.length; i++) {
+      if (req.body.id == data[i].id) {
         req.body.id++;
         i--;
       }
     }
-    res.render('created', {
-      email: req.body.email,
-      name: req.body.name,
-      id: req.body.id,
-      age: req.body.age
-    });
-    userAry.push(req.body);
-    fs.writeFile(path.join(__dirname, '../data', 'data.json'), JSON.stringify(userAry), err => {
+    const newUser = new user();
+    newUser.email = req.body.email;
+    newUser.name = req.body.name;
+    newUser.id = req.body.id;
+    newUser.age = req.body.age;
+    newUser.save((err, data) => {
       if (err) throw err;
+      console.log(`new user save ${data}`);
+      res.render('created', {
+        email: req.body.email,
+        name: req.body.name,
+        id: req.body.id,
+        age: req.body.age
+      });
     });
-  });
+  })
 
 });
 
 router.get('/all', (req, res) => {
-  let userAry;
-  fs.readFile(path.join(__dirname, '../data', 'data.json'), (err, data) => {
+  user.find({}, (err, data) => {
     if (err) throw err;
-    userAry = JSON.parse(data);
-    res.render('userList', { data: userAry });
-  });
+    res.render('userList', { data: data });
+  })
 });
 
 router.get('/edit/:id', (req, res) => {
-  let userAry;
-  fs.readFile(path.join(__dirname, '../data', 'data.json'), (err, data) => {
+  let userID = req.params.id;
+  user.findOne({ id: userID }, (err, data) => {
     if (err) throw err;
-    userAry = JSON.parse(data);
-    let currentUser;
-    for (let i = 0; i < userAry.length; i++) {
-      if (req.params.id == userAry[i].id) {
-        currentUser = userAry[i];
-      }
-    }
-    console.log(currentUser);
     res.render('edit', {
-      id: currentUser.id,
-      name: currentUser.name,
-      email: currentUser.email,
-      age: currentUser.age
+      id: data.id,
+      name: data.name,
+      email: data.email,
+      age: data.age
     });
   });
 });
 
 router.post('/editted', (req, res) => {
-  let userAry;
-  fs.readFile(path.join(__dirname, '../data', 'data.json'), (err, data) => {
+  user.findOneAndUpdate({ id: req.body.id }, { $set: { email: req.body.email, name: req.body.name, age: req.body.age } }, { new: true }, (err, data) => {
     if (err) throw err;
-    userAry = JSON.parse(data);
+    console.log(`New data saved: ${data}`);
     res.render('created', {
       email: req.body.email,
       name: req.body.name,
       id: req.body.id,
       age: req.body.age
     });
-    for (let i = 0; i < userAry.length; i++) {
-      if (req.body.id == userAry[i].id) {
-        userAry[i].email = req.body.email;
-        userAry[i].name = req.body.name;
-        userAry[i].age = req.body.age;
-      }
-    }
-    fs.writeFile(path.join(__dirname, '../data', 'data.json'), JSON.stringify(userAry), err => {
-      if (err) throw err;
-    });
-  });
+  })
 });
 
 router.get('/delete/:id', (req, res) => {
-  let userAry;
-  fs.readFile(path.join(__dirname, '../data', 'data.json'), (err, data) => {
-    if (err) throw err;
-    userAry = JSON.parse(data);
-    let currentUser;
-    console.log(`Trying to delete ${req.params.id} from`);
-    console.log(userAry);
-    for (let i = 0; i < userAry.length; i++) {
-      if (userAry[i].id == req.params.id) {
-        userAry.splice(i, 1);
-      }
-    }
-    console.log(`Let's see if gone`);
-    console.log(userAry);
+  console.log(`Trying to delete ${req.params.id}`);
+  user.findOneAndDelete({ id: req.params.id }, (err, data) => {
+    if(err) throw err;
     res.render('delete');
-    fs.writeFile(path.join(__dirname, '../data', 'data.json'), JSON.stringify(userAry), err => {
-      if (err) throw err;
-    });
   });
 });
+
+router.get('/search', (req, res) => {
+  res.render('search');
+})
+
+router.post('/searched', (req, res) => {
+  user.findOne({name: req.body.name}, (err, data) => {
+    if(err) throw err;
+    if(data) {
+      res.render('searched.pug', {
+        email: data.email,
+        name: data.name,
+        id: data.id,
+        age: data.age
+      })
+    } else {
+      res.render('notFound');
+    }
+  })
+})
 
 module.exports = router;
