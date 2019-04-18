@@ -1,0 +1,15 @@
+extends layout
+
+block content
+    h1 Edit
+    form(action="/users/editted", method="POST")
+        span Name:
+        input(type="text", value=name, placeholder="Name", name="name")
+        span Email:
+        input(type="email", value=email, placeholder="Email", name="email")
+        span Age:
+        input(type="number", value=age, placeholder="Age", name="age")
+        button(type="submit") Done
+        input.hide(type="number", value=id, placeholder="ID", name="id")
+    p
+        a(href="/users/all") Back to All Users

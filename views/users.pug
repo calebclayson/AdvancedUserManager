@@ -1,0 +1,12 @@
+extends layout
+
+block content
+    h1 Register your User Information
+    form(action="/users/created" method="POST")
+        input(name="email", type="email", placeholder="Email")
+        input(name="name", type="text", placeholder="Name")
+        input(name="id", type="number", placeholder="ID")
+        input(name="age", type="number", "placeholder"="Age")
+        button(type="submit") Submit
+    p
+        a(href="/") Back to Home

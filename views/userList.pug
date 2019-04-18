@@ -1,0 +1,31 @@
+extends layout
+
+block content
+    h1 All Users
+    .allUsers
+        .column
+            .element Name
+            each user in data
+                .element= user.name
+        .column
+            .element Email
+            each user in data
+                .element= user.email
+        .column
+            .element ID
+            each user in data
+                .element= user.id
+        .column
+            .element Age
+            each user in data
+                .element= user.age
+        .column
+            .element Edit
+            each user in data
+                a.element(href=`/users/edit/${user.id}`) Edit
+        .column
+            .element Delete
+            each user in data
+                a.element(href=`/users/delete/${user.id}`) Delete
+    p
+        a(href="/") Home
