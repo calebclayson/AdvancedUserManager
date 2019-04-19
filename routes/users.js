@@ -137,7 +137,7 @@ router.get('/delete/:id', (req, res) => {
 });
 
 router.post('/searched', (req, res) => {
-  user.findOne({name: req.body.name}, (err, data) => {
+  user.findOne({name: req.body.name.toLowerCase()}, (err, data) => {
     if(err) throw err;
     if(data) {
       res.render('searched.pug', {

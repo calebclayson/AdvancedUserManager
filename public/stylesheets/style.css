@@ -58,3 +58,7 @@ button {
 .sort span {
   margin-right: 1em;
 }
+
+.searchForm {
+  margin-left: 0;
+}

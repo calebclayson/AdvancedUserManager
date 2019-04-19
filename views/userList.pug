@@ -2,7 +2,7 @@ extends layout
 
 block content
     h1 All Users
-    form(action="/users/searched", method="POST")
+    form(action="/users/searched", method="POST").searchForm
         input(type="text", placeholder="Name", name="name")
         button(type="submit") Search
     select(name="sort" onchange="location = this.value;")
