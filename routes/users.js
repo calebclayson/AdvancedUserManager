@@ -4,6 +4,38 @@ const fs = require('fs');
 const path = require('path');
 const mongoose = require('mongoose');
 
+function bubbleSort(arr, g) {
+  let sort = true;
+  let rtn = arr;
+  let changeIndexArr = [];
+  while(sort) {
+      sort = false;
+      for(let i = rtn.length - 2; i >= 0; i--) {
+          let tmp = rtn[i + 1];
+          if(g) {
+            if(tmp.name.toLowerCase() < rtn[i].name.toLowerCase()) {
+              sort = true;
+              changeIndexArr.push(i);
+            }
+          } else {
+            if(tmp.name.toLowerCase() > rtn[i].name.toLowerCase()) {
+              sort = true;
+              changeIndexArr.push(i);
+            }
+          }
+      }
+      if(sort) {
+          for(let i = changeIndexArr.length - 1; i >= 0; i--) {
+              let tmp = rtn[changeIndexArr[i]];
+              rtn[changeIndexArr[i]] = rtn[changeIndexArr[i] + 1];
+              rtn[changeIndexArr[i] + 1] = tmp;
+              changeIndexArr.pop();
+          }
+      }
+  }
+  return rtn;
+}
+
 const userSchema = new mongoose.Schema({
   name: String,
   email: String,
@@ -46,11 +78,28 @@ router.post('/created', (req, res) => {
 
 });
 
-router.get('/all', (req, res) => {
-  user.find({}, (err, data) => {
-    if (err) throw err;
-    res.render('userList', { data: data });
-  })
+router.get('/all/:sort', (req, res) => {
+  if(req.params.sort == 'default') {
+    user.find({}, (err, data) => {
+      if (err) throw err;
+      res.render('userList', { data: data });
+    })
+  } else if(req.params.sort == 'ascending') {
+    user.find({}, (err,data) => {
+      if(err) throw err;
+      res.render('userList', { data: bubbleSort(data, true) });
+    })
+  } else if(req.params.sort == 'descending') {
+    user.find({}, (err,data) => {
+      if(err) throw err;
+      res.render('userList', { data: bubbleSort(data, false) });
+    })
+  } else {
+    user.find({}, (err, data) => {
+      if (err) throw err;
+      res.render('userList', { data: data });
+    })
+  }
 });
 
 router.get('/edit/:id', (req, res) => {
@@ -86,10 +135,6 @@ router.get('/delete/:id', (req, res) => {
     res.render('delete');
   });
 });
-
-router.get('/search', (req, res) => {
-  res.render('search');
-})
 
 router.post('/searched', (req, res) => {
   user.findOne({name: req.body.name}, (err, data) => {

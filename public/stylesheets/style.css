@@ -50,3 +50,11 @@ button {
   color: white;
   outline: none;
 }
+
+.sort {
+  margin: 1em;
+}
+
+.sort span {
+  margin-right: 1em;
+}
